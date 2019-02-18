@@ -2,6 +2,15 @@
 
 Client subscribe counterpart to backend-publish. Subscribe to receive the results of your requests to backend-publish in some weird extended streaming async HTTP-ish thing. Refer to ```backend-store```.
 
+## Environment Variables
+
+Supply environment variables by either exporting them or editing ```.env```.
+
+| ENV | Description | Default |
+| ---- | ----------- | ------- |
+| LISTEN | Host and port number to listen on | :8080 |
+| NATS | Host and port of nats | nats://localhost:4222 |
+
 ## API
 
 ```

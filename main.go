@@ -2,12 +2,13 @@ package main
 
 import (
   "encoding/json"
-  "flag"
   "fmt"
   "log"
   "net/http"
+  "os"
   "time"
 
+  "github.com/joho/godotenv"
   "github.com/julienschmidt/httprouter"
   "github.com/nats-io/go-nats"
   "github.com/golang/protobuf/proto"
@@ -30,10 +31,13 @@ var nc *nats.Conn
 var connections map[RawClient]chan []byte
 
 func main() {
-  // Parse flags
-  flag.StringVar(&listen, "listen", ":8080", "host and port to listen on")
-  flag.StringVar(&natsHost, "nats", "nats://localhost:4222", "host and port of NATS")
-  flag.Parse()
+  // Load .env
+  err := godotenv.Load()
+  if err != nil {
+    log.Fatal("Error loading .env file")
+  }
+  listen = os.Getenv("LISTEN")
+  natsHost = os.Getenv("NATS")
 
   connections = make(map[RawClient]chan []byte)
 
@@ -42,7 +46,6 @@ func main() {
   router.GET("/subscribe/:userid/client/:clientid", Subscribe)
 
   // NATS
-  var err error
   nc, err = nats.Connect(natsHost)
   if err != nil {
 		log.Fatal(err)

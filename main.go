@@ -15,8 +15,8 @@ import (
 )
 
 type RawClient struct {
-  UserId string
-  ClientId string
+  UserId string `json:"userid"`
+  ClientId string `json:"clientid"`
 }
 
 type JsonResponse struct {
@@ -43,7 +43,7 @@ func main() {
 
   // Routes
 	router := httprouter.New()
-  router.GET("/subscribe/:userid/client/:clientid", Subscribe)
+  router.GET("/subscribe", Subscribe)
 
   // NATS
   nc, err = nats.Connect(natsHost)
@@ -64,14 +64,24 @@ func Subscribe(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
     return
   }
 
+  ua := r.Header.Get("X-User-Claim")
+  if ua == "" {
+    http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+  }
+
+  var client RawClient
+  err := json.Unmarshal([]byte(ua), &client)
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+  }
+
   w.Header().Set("Content-Type", "text/event-stream")
   w.Header().Set("Cache-Control", "no-cache")
   w.Header().Set("Connection", "keep-alive")
 
-  client := RawClient {
-    UserId: p.ByName("userid"),
-    ClientId: p.ByName("clintid"),
-  }
   recv := make(chan []byte)
   connections[client] = recv;
 

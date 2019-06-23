@@ -8,6 +8,8 @@ import (
   "os"
   "time"
 
+  . "subscribe/backend-protobuf/go"
+
   "github.com/joho/godotenv"
   "github.com/julienschmidt/httprouter"
   "github.com/nats-io/go-nats"
